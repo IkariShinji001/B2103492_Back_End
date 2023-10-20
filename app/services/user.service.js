@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 const ApiError = require('../api-error');
 const jwt = require('jsonwebtoken');
 const config = require('../config/index');
-const { default: mongoose } = require('mongoose');
 
 class UserService {
   async register(userInfor) {

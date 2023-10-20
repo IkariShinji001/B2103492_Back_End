@@ -2,10 +2,13 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-  book: {
-    type: Schema.Types.ObjectId,
-    ref: 'Book',
-  },
+  books: [{
+    book: {
+      type: Schema.Types.ObjectId,
+      ref: 'Book',
+    },
+    quantity: Number,
+  }],
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -19,7 +22,7 @@ const orderSchema = new Schema({
     enum: ['Chờ xác nhận', 'Đã xác nhận', 'Không xác nhận'],
     default: 'Chờ xác nhận',
   },
-  quantity: Number,
+  orderPrice: Number,
   orderDate: {
     type: Date,
     default: Date.now,

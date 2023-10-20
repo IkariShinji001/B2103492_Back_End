@@ -19,24 +19,36 @@ const reviewSchema = new Schema({
 });
 
 const bookSchema = new Schema({
-  displayTitle: String,
+  name: String,
   volume: Number,
   bookCover: {
     type: String,
-    enum: ['cứng', 'mềm'],
+    enum: ['Cứng', 'Mềm'],
   },
+  series: {
+    type: Schema.Types.ObjectId, ref: 'Series',
+    default: null
+  },
+  author: String,
   numberOfPages: Number,
   weight: String,
   price: Number,
   discount: Number,
-  discountCode: [{ type: Schema.Types.ObjectId, ref: 'discountCode' }],
+  discountPrice: Number,
   review: [reviewSchema],
   promotions: [String],
   limited: Boolean,
-  quantity: Number,
   age: Number,
+  summarize: String,
   genres: [{ type: Schema.Types.ObjectId, ref: 'Genres' }],
   images: [String],
+  quantity:{type: Number, default: 0},
+  inventory:[{
+    staffID: String,
+    entryDate: { type: Date, default: Date.now },
+    quantity: Number,
+  }],
+  isInBussiness: {type: Boolean, default: true},
   createdAt: { type: Date, default: Date.now },
 });
 

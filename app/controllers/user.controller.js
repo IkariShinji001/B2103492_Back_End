@@ -5,7 +5,7 @@ const UserController = {
     const userInfor = req.body;
     try {
       const userService = new UserService();
-      const result = await userService.register(userInfor);
+      await userService.register(userInfor);
       res.status(201).json({ message: 'Đăng ký thành công' });
     } catch (error) {
       if (error instanceof ApiError) {

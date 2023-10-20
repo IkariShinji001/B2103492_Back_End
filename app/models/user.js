@@ -17,6 +17,7 @@ const userSchema = new Schema({
   email: String,
   address: String,
   phoneNumber: String,
+  cart:[Schema.Types.ObjectId],
   notification: [{
     title: String,
     message: String,

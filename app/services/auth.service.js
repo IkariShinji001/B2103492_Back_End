@@ -27,16 +27,28 @@ class AuthService {
     if (isVerified) {
       const accessToken = jwt.sign(
         {
-          username: decodedToken.username,
+          username: decodedToken.username || decodedToken.staffID,
           role: decodedToken.role,
           _id: decodedToken._id,
         },
         config.jwt.secret_key,
-        { expiresIn: '1h' }
+        { expiresIn: '30m' }
       );
       return { success: true, accessToken };
     } else {
-      throw new ApiError(401, 'Refresh token không hợp lệ');
+      throw new ApiError(400, 'Refresh token không hợp lệ');
+    }
+  }
+
+  async verifyAccessToken(access_token){
+    if(!access_token){
+      throw new ApiError(400, 'Không tìm thấy access token');
+    }
+
+    const isVerified = jwt.verify(access_token, config.jwt.secret_key);
+    
+    if(isVerified){
+      return true;
     }
   }
 
@@ -46,7 +58,6 @@ class AuthService {
     if(!user){
       throw new ApiError(400, 'Không tồn tại tài khoản có email này');
     }
-
     const sendMail = new SendMail();
     const payload = {
       isResetPassword: true,
@@ -57,7 +68,6 @@ class AuthService {
     const verificationLink = `http://localhost:3000/api/v1/auth/verify-forget-password?verificationToken=${token}`;
 
     await sendMail.sendMail(user.email, 'Quên mật khẩu',getMailTemplate.forgotPasswordTemplate(user.username, verificationLink ));
-
   }
 }
 

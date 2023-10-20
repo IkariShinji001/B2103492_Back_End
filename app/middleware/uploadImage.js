@@ -3,6 +3,7 @@ const cloudinary = require('./cloudinary');
 
 const uploadSingleImageCoudinary = async (req, res, next) => {
   try {
+    console.log(req.file);
     if (!req.file) {
       return res.status(400).json({ error: 'Không tồn tại file' });
     }
@@ -16,5 +17,6 @@ const uploadSingleImageCoudinary = async (req, res, next) => {
     return res.status(500).json({ error: 'Lỗi xảy ra trong quá trình upload' });
   }
 };
+
 
 module.exports = uploadSingleImageCoudinary;

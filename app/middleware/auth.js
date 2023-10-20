@@ -3,7 +3,7 @@ const authorization = require('./authorization');
 
 const auth = {
     adminOnly: [authentication, authorization.admin],
-    employeeOnly: [authentication, authorization.employee],
+    employee: [authentication, authorization.employee],
     loginRequired: [authentication]
 }
 

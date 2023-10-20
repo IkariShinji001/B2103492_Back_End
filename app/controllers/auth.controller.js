@@ -3,7 +3,7 @@ const ApiError = require('../api-error');
 const AuthController = {
   async verifyEmail(req, res, next) {
     const { verificationToken } = req.query;
-    console.log(verificationToken);
+
     try {
       const authService = new AuthService();
       const sendMailResult = await authService.verifyEmail(verificationToken);
@@ -31,7 +31,7 @@ const AuthController = {
         oldAccessToken,
         refreshToken
       );
-      if (result.statusCode === 401) {
+      if (result.statusCode === 400) {
         return next(new ApiError(result.statusCode, result.message));
       }
       res.cookie('access_token', result.accessToken);
@@ -46,6 +46,32 @@ const AuthController = {
       return next(new ApiError(500, 'Lỗi xảy ra trong quá trình xác thực'));
     }
   },
+
+  async verifyAccessToken(req, res, next){
+    const accessToken = req.cookies.access_token;
+    try {
+      const authService = new AuthService(); 
+      await authService.verifyAccessToken(accessToken);
+      return res.status(200).json({isVerified: true});
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Token hết hạn' });
+      } else {
+        return res.status(500).json({ error: 'Token không hợp lệ' });
+      }
+    }
+  },
+
+  async signOut(req ,res, next){
+    try {
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token');
+
+      return res.status(200).json({message: 'Đăng xuất thành công'});
+    } catch (error) {
+      next(error);
+    }
+  }
 };
 
 module.exports = AuthController;

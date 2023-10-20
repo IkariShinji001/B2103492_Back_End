@@ -12,12 +12,13 @@ const staffSchema = new Schema({
     require: true,
   },
   fullName: String,
+  email: String,
+  address: String,
   role: {
     type: String,
     enum: ['admin', 'employee'],
     default: 'employee',
   },
-  address: String,
   phoneNumber: String,
   createdAt: { type: Date, default: Date.now },
 });
