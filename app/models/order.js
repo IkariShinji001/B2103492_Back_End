@@ -17,9 +17,10 @@ const orderSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Staff',
   },
+  address: String,
   status: {
     type: String,
-    enum: ['Chờ xác nhận', 'Đã xác nhận', 'Không xác nhận'],
+    enum: ['Chờ xác nhận', 'Chấp nhận đơn hàng', 'Từ chối đơn hàng', 'Hủy đơn hàng'],
     default: 'Chờ xác nhận',
   },
   orderPrice: Number,

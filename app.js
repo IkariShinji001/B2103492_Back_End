@@ -31,7 +31,8 @@ const userRouter = require('./app/routes/user.route');
 const staffRouter = require('./app/routes/staff.route');
 const bookRouter = require('./app/routes/book.route');
 const seriesRouter = require('./app/routes/series.route');
-const genresRouter = require('./app/routes/genres.route')
+const genresRouter = require('./app/routes/genres.route');
+const orderRouter = require('./app/routes/order.route')
 
 app.use(config.app.base_api + '/auth', authRouter);
 app.use(config.app.base_api + '/users', userRouter);
@@ -39,6 +40,7 @@ app.use(config.app.base_api + '/staffs', staffRouter);
 app.use(config.app.base_api + '/books', bookRouter);
 app.use(config.app.base_api + '/series', seriesRouter);
 app.use(config.app.base_api + '/genres', genresRouter);
+app.use(config.app.base_api + '/orders', orderRouter);
 
 
 // middleware xử lí lỗi

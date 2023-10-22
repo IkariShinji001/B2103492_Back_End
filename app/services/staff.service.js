@@ -89,6 +89,15 @@ class StaffService {
     ).sort({fullName: 1});
     return staffs;
   }
+
+  async updateStaffInfo(id, payload){
+    const updatedStaff = await Staff.findByIdAndUpdate(id, {$set: payload}, {returnDocument: 'after'});
+    return updatedStaff;
+  }
+
+  async deleteStaff(id){
+    await Staff.findByIdAndDelete(id);
+  }
 }
 
 module.exports = new StaffService();

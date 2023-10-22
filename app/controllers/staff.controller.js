@@ -49,6 +49,27 @@ const staffController = {
       next(error);
     }
   },
+
+  async updateStaff(req, res, next){
+    const {id} = req.params;
+    const payload = req.body;
+    try {
+      const updatedStaff = await StaffService.updateStaffInfo(id, payload);
+      return res.status(200).json(updatedStaff);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async deleteStaff(req, res, next){
+    const {id} = req.params;
+    try {
+      await StaffService.deleteStaff(id);
+      return res.status(200).json({message: 'Xóa thành công'});
+    } catch (error) {
+      next(error);
+    }
+  }
 };
 
 module.exports = staffController;

@@ -7,6 +7,10 @@ router.route('/')
   .get(auth.adminOnly, staffController.getAll)
   .post(auth.adminOnly, staffController.registerNewStaff);
 
+router.route('/:id')
+   .put(auth.adminOnly, staffController.updateStaff)
+   .delete(auth.adminOnly, staffController.deleteStaff)
+
 router.route('/login')
   .post(staffController.login);
 
