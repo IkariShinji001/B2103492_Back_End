@@ -23,6 +23,10 @@ const orderSchema = new Schema({
     enum: ['Chờ xác nhận', 'Chấp nhận đơn hàng', 'Từ chối đơn hàng', 'Hủy đơn hàng'],
     default: 'Chờ xác nhận',
   },
+  statusDilivery: {
+    type: String,
+    enum: ['Đang giao hàng', 'Đã nhận đơn hàng'],
+  },
   orderPrice: Number,
   orderDate: {
     type: Date,

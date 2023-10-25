@@ -17,7 +17,6 @@ class OrderController{
 
   async getAllOrder(req, res, next){
     const {status} = req.query;
-    console.log({status});
     try {
       const orders = await OrderService.getAllOrder({status});
       return res.status(200).json(orders);
@@ -39,6 +38,5 @@ class OrderController{
   }
 
 }
-
 
 module.exports = new OrderController();

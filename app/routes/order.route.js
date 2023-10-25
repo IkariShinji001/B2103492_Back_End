@@ -8,5 +8,5 @@ router.route('/')
     .get(auth.employee, OrderController.getAllOrder);
 
 router.route('/approve/:id')
-    .put(auth.employee, OrderController.approveOrder)
+    .patch(auth.employee, OrderController.approveOrder)
 module.exports = router;
