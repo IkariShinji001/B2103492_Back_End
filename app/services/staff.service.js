@@ -10,7 +10,12 @@ const generatePassword = require('../helper/generatePassword');
 
 class StaffService {
   async login(staffID, password) {
-    const staff = await Staff.findOne({ staffID });
+    const staff = await Staff.findOne({
+      $or: [
+        { staffID: staffID },
+        { email: staffID }
+      ]
+    });
 
     if (!staff) {
       throw new ApiError(400, 'Tài khoản không tồn tại');

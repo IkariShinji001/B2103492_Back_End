@@ -12,12 +12,12 @@ router.route('/')
 
 router.route('/:id')
     .get(SeriesController.getBooksSeries)
-    .put(upload.array('image', 1) ,SeriesController.updateSeries)
-    .delete(SeriesController.deleteSeries)
+    .put(auth.employee, upload.array('image', 1) ,SeriesController.updateSeries)
+    .delete(auth.employee, SeriesController.deleteSeries)
 
 
 router.route('/:id/books')
-    .patch(SeriesController.updateBookToSeries)
+    .patch(auth.employee, SeriesController.updateBookToSeries)
 
 router.route('/:id/users')
     .post(SeriesController.FollowSeries)

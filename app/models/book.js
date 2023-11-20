@@ -43,11 +43,6 @@ const bookSchema = new Schema({
   genres: [{ type: Schema.Types.ObjectId, ref: 'Genres' }],
   images: [String],
   quantity:{type: Number, default: 0},
-  inventory:[{
-    staffID: String,
-    entryDate: { type: Date, default: Date.now },
-    quantity: Number,
-  }],
   isInBussiness: {type: Boolean, default: true},
   createdAt: { type: Date, default: Date.now },
 });

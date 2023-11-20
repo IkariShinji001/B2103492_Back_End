@@ -95,20 +95,13 @@ const bookController = {
   },
 
   async getAllBook(req, res, next) {
-    const { search } = req.query;
-    const { page, limit, sortName, sortDate } = req.query || null;
     try {
-      if (search) {
-        const books = await bookService.getBooksByName(
-          search,
-          limit,
-          page,
-          sortName,
-          sortDate
-        );
-        return res.status(200).json(books);
-      }
-      const books = await bookService.getAllBook(
+      const { genres, search, lowestPrice, highestPrice, limit, page, sortName, sortDate } = req.query;
+      const books = await bookService.getBooksByFilters(
+        genres,
+        search,
+        lowestPrice,
+        highestPrice,
         limit,
         page,
         sortName,
@@ -143,45 +136,32 @@ const bookController = {
   },
 
 
-  async getAllInventoryHistory(req, res, next){
-    const {sortDate} = req.query;
-    try {
-      const inventoryHistory = await bookService.getAllInventoryHistory(sortDate);
-      return res.status(200).json(inventoryHistory);
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async getInventoryHistoryById(req, res, next){
-    const {id} = req.params;
-    try {
-      const inventoryHistory = await bookService.getInventoryHistoryById(id);
-
-      return res.status(200).json(inventoryHistory);
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  async updateInventoryBook(req, res, next){
-    const {id} = req.params;
-    const payload = req.body;
-    payload.staffID = req.user.staffID;
-    console.log(req.user);
-    console.log(payload);
-    try {
-      const book = await bookService.updateInventoryBook(id, payload);
-      return res.status(200).json(book);
-    } catch (error) {
-      next(error);
-    }
-  },
-
   async getBookNotInSeries(req, res, next){
     try {
       const books = await bookService.getBookNotInSeries();
       return res.status(200).json(books);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getRating(req, res, next){
+    const {id} = req.params;
+    try {
+      const rating = await bookService.getRating(id);
+      return res.status(200).json(rating);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async newRating(req, res, next) {
+    const { id } = req.params;
+    const userId = req.user._id;
+    const { star, comment } = req.body;
+    try {
+      await bookService.ratingBook(id, userId, star, comment);
+      return res.status(200).json({ message: 'Đã đánh giá sách thành công' });
     } catch (error) {
       next(error);
     }

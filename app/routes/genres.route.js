@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const genresController = require('../controllers/genres.controller')
+const auth = require('../middleware/auth')
 
 
 router.route('/')
     .get(genresController.getAllGenres)
-    .post(genresController.createNewGenres)
+    .post(auth.employee, genresController.createNewGenres)
 
 router.route('/:id')
-    .put(genresController.updateGenre)
-    .delete(genresController.deleteGenre);
+    .put(auth.employee, genresController.updateGenre)
+    .delete(auth.employee, genresController.deleteGenre);
 
 module.exports = router;

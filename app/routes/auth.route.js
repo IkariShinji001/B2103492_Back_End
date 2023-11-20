@@ -13,4 +13,10 @@ router.route('/verify/access-token')
 
 router.route('/sign-out')
     .get(authController.signOut);
+
+router.route('/verify-forget-password')
+    .post(authController.verifyForgetPassword);
+
+router.route('/reset-password')
+    .post(authController.resetPassword);
 module.exports = router;

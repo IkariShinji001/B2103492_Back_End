@@ -49,7 +49,8 @@ const genresController ={
     } catch (error) {
       next(error);
     }
-  }
+  },
+
 }
 
 module.exports = genresController;

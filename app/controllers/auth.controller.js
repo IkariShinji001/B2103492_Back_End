@@ -47,12 +47,15 @@ const AuthController = {
     }
   },
 
-  async verifyAccessToken(req, res, next){
-    const accessToken = req.cookies.access_token;
+  async verifyAccessToken(req, res, next) {
+    const tokenName = req.headers.referer.includes('localhost:9999')
+      ? 'admin_access_token'
+      : 'user_access_token';
+    const accessToken = req.cookies[tokenName];
     try {
-      const authService = new AuthService(); 
+      const authService = new AuthService();
       await authService.verifyAccessToken(accessToken);
-      return res.status(200).json({isVerified: true});
+      return res.status(200).json({ isVerified: true });
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({ error: 'Token hết hạn' });
@@ -62,16 +65,45 @@ const AuthController = {
     }
   },
 
-  async signOut(req ,res, next){
+  async signOut(req, res, next) {
+    const tokenName = req.headers.referer.includes('localhost:9999')
+      ? 'admin_access_token'
+      : 'user_access_token';
+      const refreshTokenName = req.headers.referer.includes('localhost:9999')
+      ? 'admin_refresh_token'
+      : 'user_refresh_token';
     try {
-      res.clearCookie('access_token');
-      res.clearCookie('refresh_token');
-
-      return res.status(200).json({message: 'Đăng xuất thành công'});
+      res.clearCookie(tokenName);
+      res.clearCookie(refreshTokenName);
+      return res.status(200).json({ message: 'Đăng xuất thành công' });
     } catch (error) {
       next(error);
     }
-  }
+  },
+
+  async verifyForgetPassword(req, res, next) {
+    const { email } = req.body;
+    try {
+      const authService = new AuthService();
+      await authService.verifyForgetPassword(email);
+      return res.status(200).json({ message: 'Đã gửi mail xác nhận' });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resetPassword(req, res) {
+    const newPassword = req.body.newPassword;
+    const token = req.body.verificationToken;
+    try {
+      const authService = new AuthService();
+      await authService.resetPassword(token, newPassword);
+      return res.status(200).json({ success: 'Đổi mật khẩu thành công' });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: 'Lỗi server' });
+    }
+  },
 };
 
 module.exports = AuthController;

@@ -89,7 +89,38 @@ class BookService {
     }
   }
 
-  async getAllBook(limit, page, sortName, sortDate) {
+  async getBookById(id) {
+    const book = await Book.findById(id).populate('series').populate('genres');
+    return book;
+  }
+
+  async getBooksByFilters(
+    genres,
+    search,
+    lowestPrice,
+    highestPrice,
+    limit,
+    page,
+    sortName,
+    sortDate
+  ) {
+    const query = {};
+    if (genres) {
+      query.genres = { $in: genres };
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: new RegExp(search), $options: 'i' } },
+        { volume: Number(search) || '' },
+      ];
+    }
+
+    if (parseInt(lowestPrice) || parseInt(highestPrice)) {
+      console.log('asdasd');
+      query.discountPrice = { $gte: lowestPrice, $lte: highestPrice };
+    }
+
     let sortOption;
 
     if (sortDate) {
@@ -102,16 +133,11 @@ class BookService {
       };
     }
 
-    const books = await Book.find({})
+    const books = await Book.find(query)
       .limit(limit)
       .skip((page - 1) * limit)
       .sort(sortOption);
     return books;
-  }
-
-  async getBookById(id) {
-    const book = await Book.findById(id);
-    return book;
   }
 
   async getBooksByName(search, limit, page, sortName, sortDate) {
@@ -147,76 +173,41 @@ class BookService {
     await Book.findByIdAndUpdate(id, { $set: { isInBussiness: state } });
   }
 
-  async updateInventoryBook(id, payload) {
-    payload.quantity = parseInt(payload.quantity);
-    const book = await Book.findByIdAndUpdate(
-      id,
-      { $push: { inventory: payload } },
-      { returnDocument: 'after' }
+  async getBookNotInSeries() {
+    const books = await Book.find(
+      { series: null },
+      { name: 1, volume: 1, quantity: 1 }
     );
 
-    if (book) {
-      book.quantity += payload.quantity;
-      await book.save();
-    }
-    return book.inventory[book.inventory.length - 1];
+    return books;
   }
 
-  async getAllInventoryHistory(sortDate) {
-    if (!sortDate) {
-      sortDate = -1;
+  async getRating(id) {
+
+    const book = await Book.findById(id);
+    
+    let avgRating = 0;
+
+    if(book.review.length > 0) {
+      for(let i = 0; i < book.review.length; i++) {
+        avgRating += book.review[i].star;
+      }
+      avgRating = avgRating / book.review.length;
     }
 
-    const booksWithInventory = await Book.aggregate([
-      {
-        $match: { 'inventory.0': { $exists: true } },
-      },
-      {
-        $unwind: '$inventory',
-      },
-      {
-        $sort: { 'inventory.entryDate': parseInt(sortDate) },
-      },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          volume: { $first: '$volume' },
-          inventory: { $push: '$inventory' },
+    return {avgRating, numberOfRating: book.review.length};
+  }
+
+  async ratingBook(id, userId, star, comment) {
+    await Book.findByIdAndUpdate(id, {
+      $push: {
+        review: {
+          userId: userId,
+          star,
+          comment,
         },
       },
-    ]);
-
-    const inventoryHistory = booksWithInventory.flatMap((book) => {
-      const bookHistory = book.inventory.map((entry) => ({
-        bookId: book._id,
-        bookName: book.name,
-        volume: book.volume,
-        quantity: entry.quantity,
-        entryDate: entry.entryDate,
-        staffID: entry.staffID,
-      }));
-      return bookHistory;
     });
-    return inventoryHistory;
-  }
-
-  async getInventoryHistoryById(id) {
-    const inventoryHistory = await Book.findById(id, { inventory: 1 }).sort({
-      'inventory.entryDate': -1,
-    });
-    if (inventoryHistory) {
-      inventoryHistory.inventory.sort((a, b) => b.entryDate - a.entryDate);
-      return inventoryHistory;
-    }
-    return inventoryHistory;
-  }
-
-
-  async getBookNotInSeries(){
-    const books = await Book.find({series: null }, {name: 1, volume: 1, quantity: 1});
-
-    return books;
   }
 }
 

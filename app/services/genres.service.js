@@ -1,6 +1,5 @@
 const Genres = require('../models/genres');
 const Books = require('../models/book');
-
 class GenresService {
   async getAllGenres(order) {
     const genres = await Genres.find({}).sort({ type: order });
@@ -31,8 +30,10 @@ class GenresService {
     }
   }
 
-  async updateGenreById(id, payload){
-    await Genres.findByIdAndUpdate(id, {$set: payload });
+
+
+  async updateGenreById(id, payload) {
+    await Genres.findByIdAndUpdate(id, { $set: payload });
   }
 }
 

@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const ApiError = require('../api-error');
 const jwt = require('jsonwebtoken');
 const config = require('../config/index');
+const Book = require('../models/book');
 
 class UserService {
   async register(userInfor) {
@@ -46,18 +47,20 @@ class UserService {
 
     const user = await User.findOne({ username });
 
-    if (!user) {
-      throw new ApiError(400, 'Không tồn tại tài khoản');
-    }
+    console.log(user);
 
-    if (!user.isVerified) {
-      return new ApiError(400, 'Chưa xác thực email');
+    if (!user) {
+      throw new ApiError(400, 'Sai tài khoản hoặc mật khẩu');
     }
 
     const isMatchPassword = await bcrypt.compare(password, user.password);
 
     if (!isMatchPassword) {
-      throw new ApiError(400, 'Sai mật khẩu');
+      throw new ApiError(400, 'Sai tài khoản hoặc mật khẩu');
+    }
+
+    if (!user.isVerified) {
+      throw new ApiError(400, 'Tài khoản chưa xác thực email!');
     }
 
     const access_token = jwt.sign(
@@ -67,7 +70,7 @@ class UserService {
         role: user.role,
       },
       config.jwt.secret_key,
-      { expiresIn: '30m' }
+      { expiresIn: '4h' }
     );
 
     const refresh_token = jwt.sign(
@@ -78,7 +81,11 @@ class UserService {
       { expiresIn: '1d' }
     );
 
-    return { access_token, refresh_token, success: true };
+    return {
+      access_token,
+      refresh_token,
+      success: { id: user._id, notification: user.notification },
+    };
   }
 
   async changePassword(oldPassowrd, newPassword, username) {
@@ -103,6 +110,93 @@ class UserService {
   async getAllUser() {
     const users = await User.find({});
     return users;
+  }
+
+  async addCart(userId, bookId, quantity) {
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      throw new Error('Book not found');
+    }
+
+    const existingBookInCart = user.cart.books.find((cartItem) =>
+      cartItem.book.equals(bookId)
+    );
+
+    if (existingBookInCart) {
+      existingBookInCart.quantity += parseInt(quantity);
+    } else {
+      user.cart.books.push({
+        book: bookId,
+        quantity: quantity,
+      });
+    }
+
+    await user.save();
+  }
+
+  async updateBookQuantityInCart(userId, bookId, newQuantity) {
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const bookItem = user.cart.books.filter((cartItem) => {
+      console.log(cartItem.book.toString());
+      return cartItem.book.toString() === bookId;
+    });
+
+    console.log(bookItem);
+    if (bookItem) {
+      if (newQuantity < 1) {
+        throw new Error('Quantity cannot be less than 1');
+      } else {
+        bookItem[0].quantity = newQuantity;
+      }
+      await user.save();
+    }
+  }
+
+  async removeBookFromCart(userId, bookId) {
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const bookIndex = user.cart.books.findIndex((cartItem) =>
+      cartItem.book.equals(bookId)
+    );
+
+    if (bookIndex !== -1) {
+      user.cart.books.splice(bookIndex, 1);
+      await user.save();
+    }
+  }
+
+  async getUserCart(id) {
+    const user = await User.findOne({ _id: id }).populate({
+      path: 'cart.books.book',
+      model: 'Book',
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user.cart;
+  }
+
+  async getUser(id) {
+    const user = await User.findOne({ _id: id }, { password: 0 });
+    return user;
+  }
+
+  async updateUserInfo(id, payload) {
+    await User.findByIdAndUpdate({ _id: id }, { $set: payload });
   }
 }
 

@@ -17,6 +17,8 @@ const orderSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Staff',
   },
+  userReceive: String,
+  phoneNumber: String,
   address: String,
   status: {
     type: String,
@@ -25,8 +27,9 @@ const orderSchema = new Schema({
   },
   statusDilivery: {
     type: String,
-    enum: ['Đang giao hàng', 'Đã nhận đơn hàng'],
+    enum: ['Đang giao hàng', 'Đã nhận đơn hàng', 'Hoàn hàng'],
   },
+  feeShipment: Number,
   orderPrice: Number,
   orderDate: {
     type: Date,

@@ -10,26 +10,23 @@ router.route('/')
 
 router.route('/count')
     .get(bookController.getBookCount);
-    
-router.route('/inventory')
-    .get(bookController.getAllInventoryHistory)
+
+router.route('/:id/rating')
+    .get(bookController.getRating)
+    .post(auth.loginRequired ,bookController.newRating);
 
 router.route('/not-in-series')
     .get(bookController.getBookNotInSeries)
 router.route('/:id')
     .get(bookController.getBookById)
-    .put(bookController.updateBook)
-    .delete(bookController.deleteBook)
-
-router.route('/:id/inventory')
-    .get(auth.employee, bookController.getInventoryHistoryById)
-    .put(auth.employee ,bookController.updateInventoryBook);
+    .put(auth.employee ,bookController.updateBook)
+    .delete(auth.adminOnly, bookController.deleteBook)
 
 router.route('/:id/images')
-    .patch(upload.array('images', 15), bookController.createBookImage);
+    .patch(auth.employee, upload.array('images', 15), bookController.createBookImage);
 
 router.route('/:id/is-in-bussiness')
-    .patch(bookController.updateIsInBussiness);
+    .patch(auth.adminOnly ,bookController.updateIsInBussiness);
     
 router.route('/:id/images/:publicId')
     .delete(bookController.deleteBookImage);

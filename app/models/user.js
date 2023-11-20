@@ -17,12 +17,24 @@ const userSchema = new Schema({
   email: String,
   address: String,
   phoneNumber: String,
-  cart:[Schema.Types.ObjectId],
-  notification: [{
-    title: String,
-    message: String,
-    isRead: {type: Boolean, default: false}
-  }], 
+  cart: {
+    books: [
+      {
+        book: {
+          type: Schema.Types.ObjectId,
+          ref: 'Book',
+        },
+        quantity: Number,
+      },
+    ],
+  },
+  notification: [
+    {
+      title: String,
+      message: String,
+      isRead: { type: Boolean, default: false },
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 
