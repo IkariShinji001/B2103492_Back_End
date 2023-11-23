@@ -19,23 +19,36 @@ class AuthService {
     return { success: true };
   }
 
-  async verifyRefreshToken(oldAccessToken, refreshToken) {
+  async verifyRefreshToken(oldAccessToken, refreshToken, accessTokenName) {
     const decodedToken = jwt.decode(oldAccessToken);
     if (!refreshToken) {
       throw new ApiError(401, 'Không tìm thấy refresh token');
     }
     const isVerified = jwt.verify(refreshToken, config.jwt.secret_key);
     if (isVerified) {
-      const accessToken = jwt.sign(
-        {
-          username: decodedToken.username || decodedToken.staffID,
-          role: decodedToken.role,
-          _id: decodedToken._id,
-        },
-        config.jwt.secret_key,
-        { expiresIn: '3h' }
-      );
-      return { success: true, accessToken };
+      if(accessTokenName === 'user_access_token'){
+        const accessToken = jwt.sign(
+          {
+            username: decodedToken.username,
+            role: decodedToken.role,
+            _id: decodedToken._id,
+          },
+          config.jwt.secret_key,
+          { expiresIn: '3h' }
+        );
+        return { success: true, accessToken }
+      }else{
+        const accessToken = jwt.sign(
+          {
+            username: decodedToken.staffID,
+            role: decodedToken.role,
+            _id: decodedToken._id,
+          },
+          config.jwt.secret_key,
+          { expiresIn: '3h' }
+        );
+        return { success: true, accessToken }
+      }
     } else {
       throw new ApiError(400, 'Refresh token không hợp lệ');
     }

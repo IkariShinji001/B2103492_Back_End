@@ -47,8 +47,6 @@ class UserService {
 
     const user = await User.findOne({ username });
 
-    console.log(user);
-
     if (!user) {
       throw new ApiError(400, 'Sai tài khoản hoặc mật khẩu');
     }
@@ -70,7 +68,7 @@ class UserService {
         role: user.role,
       },
       config.jwt.secret_key,
-      { expiresIn: '4h' }
+      { expiresIn: '2h' }
     );
 
     const refresh_token = jwt.sign(

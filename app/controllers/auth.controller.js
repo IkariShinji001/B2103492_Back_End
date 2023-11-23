@@ -23,18 +23,29 @@ const AuthController = {
   },
 
   async verifyRefreshToken(req, res, next) {
-    const refreshToken = req.cookies.refresh_token;
-    const oldAccessToken = req.cookies.access_token;
+    const accessTokenName = req.headers.referer.includes('localhost:9999')
+      ? 'admin_access_token'
+      : 'user_access_token';
+      const refreshTokenName = req.headers.referer.includes('localhost:9999')
+      ? 'admin_refresh_token'
+      : 'user_refresh_token';
+    const refreshToken = req.cookies[refreshTokenName];
+    const oldAccessToken = req.cookies[accessTokenName];
     try {
       const authService = new AuthService();
       const result = await authService.verifyRefreshToken(
         oldAccessToken,
-        refreshToken
+        refreshToken,
+        accessTokenName
       );
       if (result.statusCode === 400) {
         return next(new ApiError(result.statusCode, result.message));
       }
-      res.cookie('access_token', result.accessToken);
+      if(accessTokenName === 'user_access_token'){
+        res.cookie('user_access_token', result.accessToken);
+      }else{
+        res.cookie('admin_access_token', result.accessToken);
+      }
       return res.status(200).json({
         message: 'Xác thực refresh token thành công và cấp access_token mới',
       });
